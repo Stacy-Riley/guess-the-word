@@ -1,5 +1,5 @@
 //UL where players guesses will appear:
-const guessedLetters = document.querySelector(".guessed-letters");
+const guessedLettersElement = document.querySelector(".guessed-letters");
 //Button to make guess:
 const buttonToGuess = document.querySelector(".guess");
 //Text input where the player will guess a letter:
@@ -38,18 +38,18 @@ placeHolder(word);
 //Function to run when guess button is pressed:
 buttonToGuess.addEventListener("click", function(e){
     e.preventDefault(); //To prevent the page from reloading
-    guessMessage.innerText = ""; //clears guessMessage field after each click
+    // guessMessage.innerText = ""; //clears guessMessage field after each click
     let input = inputLetterHere.value;
     
     validateInput(input);
     const letter = validateInput(input);
 
-    //will execute only if we get a valid letter
-    if(letter){
-        makeGuess(letter);
-    }
+    inputLetterHere.value = "";
 
-    inputLetterHere.value = ""; // clears input box
+    //will execute only if we get a valid letter - undefined message goes no further
+    if(letter){
+        makeGuess(letter);  
+    }
 });
 
 //Function to verify the user's input.
@@ -72,11 +72,64 @@ const validateInput = function(input){
 const makeGuess = function(letter){
     letter = letter.toUpperCase();
 
+    //prevents duplicate letters from entering the array
     if(guessedLettersArray.includes(letter)){
             guessMessage.innerText = "Uh-oh, you've guessed that letter already"
         } else {
             guessedLettersArray.push(letter);
-            console.log(guessedLettersArray);
+            // console.log(guessedLettersArray);
+            
+            guessedLettersDisplay(letter);
+            matchWords(guessedLettersArray) //guessedLetters
         }
 }
+
+//Function to display the users guesses inside "guessedLettersElement"
+const guessedLettersDisplay = function(){
+    guessedLettersElement.innerHTML = "";
+    
+    
+    for(let letter of guessedLettersArray){
+        let li = document.createElement("li");
+        li.innerText = letter;
+        guessedLettersElement.append(li)
+        
+    }
+}
+
+//function to update the word in progress that matches wordArray with guessedLettersArray
+const matchWords = function(guessedLettersArray){
+    const wordUpper = word.toUpperCase();
+    
+    //Turn the "word" string into an array
+    const wordArray = wordUpper.split("");
+    
+    //This will capture the matched letters between the 2 arrays
+    let results = [];
+
+   //comparing the 2 arrays, wordArray from api and user guesses that are in an array
+    for (let letter of wordArray) {
+        if (guessedLettersArray.includes(letter)) {
+            results.push(letter.toUpperCase()); //push the letter that matches
+            
+        } else {
+            results.push("●");//if a matching letter is not present, this line pushs the circle for the letter
+        }
+    }
+        // removes the commas of the string so they aren't displayed on the screen
+        wordInProgress.innerText = results.join("");  
+
+        //run function to check if user won
+        didPlayerWin(results);
+        
+        return results;       
+}
+
+//Function to Check If the Player Won
+const didPlayerWin = function(results){
+    if(!results.includes("●")){
+        wordInProgress.classList.add("win", "highlight")
+        wordInProgress.innerText = "You guessed the correct word! Congrats!"   
+    }
+}  
 
