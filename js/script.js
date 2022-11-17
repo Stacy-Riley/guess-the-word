@@ -7,14 +7,15 @@ const inputLetterHere = document.querySelector(".letter");
 //The empty paragraph where the word in progress will appear:
 const wordInProgress = document.querySelector(".word-in-progress");
 //The paragraph where the remaining guesses will display:
-const remainingGuesses = document.querySelector(".remaining");
+let remainingGuessesElement = document.querySelector(".remaining");
 //The span inside the paragraph where the remaining guesses will display:
 const spanInRemainingGuesses = document.querySelector("span");
 //The empty paragraph where messages will appear when the player guesses a letter:
 const guessMessage = document.querySelector(".message");
 //The hidden button that will appear prompting the player to play again:
 const buttonToPlayAgain = document.querySelector(".play-again");
-
+//The number of guesses a user has left:
+let remainingGuesses = 8;
 
 
 //First Test word:
@@ -38,7 +39,7 @@ placeHolder(word);
 //Function to run when guess button is pressed:
 buttonToGuess.addEventListener("click", function(e){
     e.preventDefault(); //To prevent the page from reloading
-    // guessMessage.innerText = ""; //clears guessMessage field after each click
+     guessMessage.innerText = ""; //clears guessMessage field after each click
     let input = inputLetterHere.value;
     
     validateInput(input);
@@ -78,9 +79,11 @@ const makeGuess = function(letter){
         } else {
             guessedLettersArray.push(letter);
             // console.log(guessedLettersArray);
-            
-            guessedLettersDisplay(letter);
+
+            countRemainingGuesses(letter);
+            guessedLettersDisplay(); //took letter out here from callback
             matchWords(guessedLettersArray) //guessedLetters
+            
         }
 }
 
@@ -92,8 +95,7 @@ const guessedLettersDisplay = function(){
     for(let letter of guessedLettersArray){
         let li = document.createElement("li");
         li.innerText = letter;
-        guessedLettersElement.append(li)
-        
+        guessedLettersElement.append(li);    
     }
 }
 
@@ -125,11 +127,35 @@ const matchWords = function(guessedLettersArray){
         return results;       
 }
 
+//Function to count guesses and display the guesses left or tell if they lost the game
+const countRemainingGuesses = function(letter){
+    
+    let wordUpper = word.toUpperCase()
+
+        if(!wordUpper.includes(letter)){
+            remainingGuessesElement.innerText = `Sorry the word has no ${letter}`;
+            remainingGuesses -=1;
+        } else {
+            remainingGuessesElement.innerText = `Good guess. The word has the letter ${letter}`
+        }
+
+        if (remainingGuesses === 0){
+            remainingGuessesElement.innerHTML = `Game over! The word was <span class="highlight">${word}</span>.`;
+        } else if (remainingGuesses === 1){
+            remainingGuessesElement.innerHTML = "You have <span> 1 </span>guess left.";        
+        } else {
+            spanInRemainingGuesses.innerText = `${remainingGuesses} guesses`
+        }
+}
+
+
+
 //Function to Check If the Player Won
 const didPlayerWin = function(results){
-    if(!results.includes("●")){
-        wordInProgress.classList.add("win", "highlight")
-        wordInProgress.innerText = "You guessed the correct word! Congrats!"   
+    if(word.toUpperCase() === wordInProgress.innerText){
+        guessMessage.classList.add("win", "highlight");
+        guessMessage.innerText = "You guessed the correct word! Congrats!";   
     }
-}  
+};
+
 
