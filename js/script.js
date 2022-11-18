@@ -14,16 +14,32 @@ const spanInRemainingGuesses = document.querySelector("span");
 const guessMessage = document.querySelector(".message");
 //The hidden button that will appear prompting the player to play again:
 const buttonToPlayAgain = document.querySelector(".play-again");
-//The number of guesses a user has left:
+
+//First Test word:
+let word = "magnolia";
+const guessedLettersArray = [];
 let remainingGuesses = 8;
 
 
-//First Test word:
-const word = "magnolia";
-const guessedLettersArray = [];
+//Function to capture api of random words:
+const getWord = async function(){
+    const res = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+    const words = await res.text();
+    const wordArray = words.split("\n");
+    
+    //To get a random index of a word from the wordArray:
+    const randomIndex = Math.floor(Math.random()* wordArray.length);
+    
+    word = wordArray[randomIndex].trim();
+    placeHolder(word);
+};
 
-//Function to create circle placeholder for hidden word user will guess on:
-const placeHolder = function(){
+//This starts the game:
+getWord();
+
+
+//Function to create placeholder for each letter of the hidden word:
+const placeHolder = function(word){
     const wordLetterArray = [];
    
     for(let letter of word){
@@ -33,7 +49,7 @@ const placeHolder = function(){
     wordInProgress.innerText = wordLetterArray.join(""); //removes the , between the array of letters/"●"   
 };
 
-placeHolder(word);
+
 
 
 //Function to run when guess button is pressed:
@@ -45,15 +61,14 @@ buttonToGuess.addEventListener("click", function(e){
     validateInput(input);
     const letter = validateInput(input);
 
-    inputLetterHere.value = "";
-
     //will execute only if we get a valid letter - undefined message goes no further
     if(letter){
         makeGuess(letter);  
     }
+    inputLetterHere.value = "";
 });
 
-//Function to verify the user's input.
+//Function to verify the user's input:
 const validateInput = function(input){
     const acceptedLetter = /[a-zA-Z]/; //regular expression to ensure the player inputs a letter
     // const nonLetter = /\d/; //non-letter character
@@ -69,7 +84,7 @@ const validateInput = function(input){
     }  
 };
   
-//Function to validate users letter isn't a duplicate than pushs letter to "guessedLettersArray"
+//Function to validate users letter isn't a duplicate than pushs letter to "guessedLettersArray":
 const makeGuess = function(letter){
     letter = letter.toUpperCase();
 
@@ -82,13 +97,13 @@ const makeGuess = function(letter){
 
             countRemainingGuesses(letter);
             guessedLettersDisplay(); //took letter out here from callback
-            matchWords(guessedLettersArray) //guessedLetters
-            
+            matchWords(guessedLettersArray) //guessedLetters 
         }
-}
+};
 
-//Function to display the users guesses inside "guessedLettersElement"
+//Function to display the users guesses inside "guessedLettersElement":
 const guessedLettersDisplay = function(){
+    //Clear the list first
     guessedLettersElement.innerHTML = "";
     
     
@@ -97,9 +112,9 @@ const guessedLettersDisplay = function(){
         li.innerText = letter;
         guessedLettersElement.append(li);    
     }
-}
+};
 
-//function to update the word in progress that matches wordArray with guessedLettersArray
+//Function to update the word in progress that matches wordArray with guessedLettersArray:
 const matchWords = function(guessedLettersArray){
     const wordUpper = word.toUpperCase();
     
@@ -122,16 +137,13 @@ const matchWords = function(guessedLettersArray){
         wordInProgress.innerText = results.join("");  
 
         //run function to check if user won
-        didPlayerWin(results);
-        
-        return results;       
-}
+        didPlayerWin();      
+};
 
-//Function to count guesses and display the guesses left or tell if they lost the game
+//Function to count guesses and display the guesses left or tell if they lost the game:
 const countRemainingGuesses = function(letter){
     
     let wordUpper = word.toUpperCase()
-
         if(!wordUpper.includes(letter)){
             remainingGuessesElement.innerText = `Sorry the word has no ${letter}`;
             remainingGuesses -=1;
@@ -146,12 +158,10 @@ const countRemainingGuesses = function(letter){
         } else {
             spanInRemainingGuesses.innerText = `${remainingGuesses} guesses`
         }
-}
+};
 
-
-
-//Function to Check If the Player Won
-const didPlayerWin = function(results){
+//Function to Check If the Player Won:
+const didPlayerWin = function(){ 
     if(word.toUpperCase() === wordInProgress.innerText){
         guessMessage.classList.add("win", "highlight");
         guessMessage.innerText = "You guessed the correct word! Congrats!";   
