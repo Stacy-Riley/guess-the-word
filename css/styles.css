@@ -60,6 +60,12 @@ h1 {
   padding-bottom: 3px;
 }
 
+.style-word {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 1.2em;
+}
+
 .word-in-progress {
   letter-spacing: 15px;
   color: #28bdbd;
